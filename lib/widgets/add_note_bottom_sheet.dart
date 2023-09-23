@@ -1,41 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:notes/widgets/custom_text_field.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/cubits/cubit/add_note_cubit.dart';
+import 'package:notes/cubits/cubit/notes_cubit/notes_cubit.dart';
+import 'package:notes/widgets/add_note_form.dart';
 
-class AddNoteBottomSheet extends StatefulWidget {
+class AddNoteBottomSheet extends StatelessWidget {
   const AddNoteBottomSheet({super.key});
   @override
-  State<AddNoteBottomSheet> createState() => _AddNoteBottomSheetState();
-}
-
-class _AddNoteBottomSheetState extends State<AddNoteBottomSheet> {
-  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 32),
-            const CustomTextField(hint: 'Title'),
-            const SizedBox(height: 32),
-            const CustomTextField(hint: 'Content', maxlines: 5),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 50,
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                    Colors.teal,
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text('Add'),
+/*
++ using BlocProvider here at place which is needed to it only,
+it is useful to performance ,such that keeps resourses,
+but if i used in material app ,it will be open and valid to all app
+,then performance is poor
+*/
+    return BlocProvider(
+      create: (context) => AddNoteCubit(),
+      child: BlocConsumer<AddNoteCubit, AddNoteState>(
+        listener: (context, state) {
+          if (state is AddNoteFailure) {}
+          if (state is AddNoteSuccess) {
+            BlocProvider.of<NotesCubit>(context).fetchAllNotes();
+            Navigator.pop(context);
+          }
+        },
+        builder: (context, state) {
+          return AbsorbPointer(
+            // AbsorbPointer prevents user from and change when loading
+            absorbing: state is AddNoteLoading ? true : false,
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: SingleChildScrollView(
+                child: AddNoteForm(),
               ),
             ),
-            const SizedBox(height: 32),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

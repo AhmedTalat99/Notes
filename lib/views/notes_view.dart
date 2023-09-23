@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/cubits/cubit/notes_cubit/notes_cubit.dart';
 import 'package:notes/widgets/notes_list_view.dart';
 
 import '../widgets/add_note_bottom_sheet.dart';
@@ -12,8 +14,16 @@ class NotesView extends StatefulWidget {
 
 class _NotesViewState extends State<NotesView> {
   @override
+  void initState() {
+    BlocProvider.of<NotesCubit>(context).fetchAllNotes();
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -25,6 +35,7 @@ class _NotesViewState extends State<NotesView> {
           Padding(
             padding: const EdgeInsets.only(top: 10, right: 15),
             child: FloatingActionButton(
+              heroTag: 'appbarnoteview',
               onPressed: () {},
               foregroundColor: Colors.white,
               backgroundColor: const Color(0xFF383839),
@@ -41,8 +52,10 @@ class _NotesViewState extends State<NotesView> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'noteview',
         onPressed: () {
           showModalBottomSheet(
+              isScrollControlled: true,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
